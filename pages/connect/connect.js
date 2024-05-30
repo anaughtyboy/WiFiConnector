@@ -8,6 +8,9 @@ Page({
     ssid: 'WiFi名称',
     bssid: '设备MAC',
     password: '密码'
+    // ssid: 'SMALLPAY-7A5G',
+    // bssid: '设备MAC',
+    // password: 'smallpay3-7wifi'
   },
 
   /**
@@ -66,6 +69,7 @@ Page({
         })
       },
       fail: (res) => {
+        console.log(res);
         that.errorDialog(res);
       }
     })
@@ -102,6 +106,7 @@ Page({
   copyPassword: function() {
     const that = this;
     wx.setClipboardData({
+      // data: `wifi名称：${that.data.ssid}，wifi密码：${that.data.password}`,
       data: that.data.password,
       success (res) {
         wx.getClipboardData({
@@ -124,7 +129,40 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-
+    if (this.data.wifiList != []) {
+      this.data.wifiList = [];
+      this.setData({
+        wifiList: this.data.wifiList
+      });
+      //console.log(this.data.wifiList);
+    }
+    wx.startWifi({
+      success: (res) => {
+        console.log(res);
+        wx.getWifiList({
+          success: (res) => {
+            console.log(res);
+            wx.onGetWifiList((res) => {
+              //console.log(res.wifiList);
+              for (var i = 0; i < res.wifiList.length; i++) {
+                if (res.wifiList[i].SSID != '') {
+                  this.data.wifiList.push(res.wifiList[i]);
+                  this.setData({
+                    wifiList: this.data.wifiList
+                  });
+                }
+              }
+            })
+          },
+          fail: (res) => {
+            console.log(res);
+          }
+        })
+      },
+      fail: (res) => {
+        console.log(res);
+      }
+    })
   },
 
   /**

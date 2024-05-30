@@ -1,14 +1,23 @@
 {
   "pages": [
+    "pages/wifilist/wifilist",
     "pages/connect/connect",
     "pages/success/success"
   ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "请求获取Wi-Fi列表前需要用户授权精确地理位置"
+    }
+  },
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "Demo",
+    "navigationBarTitleText": "扫码畅连",
     "navigationBarTextStyle": "black"
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "useExtendedLib": {
+    "weui": true
+  }
 }
