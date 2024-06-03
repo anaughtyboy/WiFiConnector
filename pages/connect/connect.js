@@ -5,9 +5,9 @@ Page({
    * 页面的初始数据
    */
   data: {
-    ssid: 'WiFi名称',
-    bssid: '设备MAC',
-    password: '密码'
+    ssid: '-',
+    bssid: '-',
+    password: '-'
     // ssid: 'SMALLPAY-7A5G',
     // bssid: '设备MAC',
     // password: 'smallpay3-7wifi'
@@ -17,9 +17,12 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    let ssid = options.ssid;
-    let bssid = options.bssid;
-    let password = options.password;
+    // scene 需要使用 decodeURIComponent 才能获取到生成二维码时传入的 scene
+    const scene = options && options.scene ? decodeURIComponent(options.scene) : ''
+    const [qsssid, qsbssid, qspassword] = scene.split('|')
+    let ssid = options.ssid || qsssid;
+    let bssid = options.bssid || qsbssid;
+    let password = options.password || qspassword;
     this.setData({
       ssid: ssid,
       bssid: bssid,
@@ -31,11 +34,10 @@ Page({
    * 点击连接按钮触发
    */
   connectWifi: function() {
-    const that = this;
     wx.showToast({
-      title: '请稍等...',
+      title: 'WiFi连接中，请稍等...',
     })
-    that.startWiFi();
+    this.startWiFi();
   },
   
   /**
@@ -44,8 +46,13 @@ Page({
   startWiFi: function() {
     const that = this;
     wx.startWifi({
-      complete: (res) => {
-        that.connected();
+      success: () => {that.connected();},
+      fail: (res) => {
+        wx.showToast({
+          title: res.errMsg,
+          icon: 'none',
+          duration: 2000
+        })
       },
     })
   },
@@ -69,7 +76,7 @@ Page({
         })
       },
       fail: (res) => {
-        console.log(res);
+        // console.log(res);
         that.errorDialog(res);
       }
     })
@@ -95,6 +102,8 @@ Page({
       fail(res) {
         wx.showToast({
           title: res.errMsg,
+          icon: 'none',
+          duration: 2000
         })
       }
     });

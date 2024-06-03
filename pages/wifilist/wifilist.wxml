@@ -1,28 +1,36 @@
 <view class="wifi-list-container">
-  <view class='choose-wifi' wx:if="{{wifiList.length > 0}}">
-    点击列表中你想要分享<mp-icon type="field" icon="share" color="#409eff" size="{{15}}">
-    </mp-icon>的 WiFi
-  </view>
-  <view class='choose-wifi' bindtap="unlockMore" wx:if="{{wifiList.length === 0}}">
-    点击<mp-icon type="field" icon="refresh" color="#409eff" size="{{15}}">
-    </mp-icon>刷新 WiFi 列表
-  </view>
-  <!-- <view class='unlock-more' bindtap="unlockMore" >获取 WiFi 列表</view> -->
-  <!-- <button bindtap="unlockMore">获取 WiFi 列表</button> -->
-  <!-- <view wx:for="{{wifiList}}" wx:key="index">
-    <view class='ssid-style' bindtap="connectWiFi" data-item='{{item}}' hover-class='ssid-hover' hover-stay-time='50'>
-    {{item.SSID}}{{item.frequency > 3000 ? '(5G)' : ''}}
-    </view>
+  <!-- <view class='choose-wifi' wx:if="{{wifiList.length > 0}}">
+    点击下面列表中你想要分享的 WiFi
+    <mp-icon type="field" icon="share" color="#409eff" size="{{15}}">
+    </mp-icon>
   </view> -->
-    <view class="page__bd page__bd_spacing">
+  <view class='choose-wifi' bindtap="unlockMore">
+    点击刷新 WiFi 列表
+    <!-- <mp-icon type="field" icon="refresh" color="#409eff" size="{{15}}">
+    </mp-icon> -->
+  </view>
+    <!-- <view class="page__bd page__bd_spacing">
       <view class="weui-flex" wx:for="{{wifiList}}" wx:key="index">
         <view class="weui-flex__item">
           <view class="placeholder" bindtap="connectWiFi" data-item='{{item}}' hover-class='ssid-hover' hover-stay-time='50'>
             {{item.SSID}}{{item.frequency > 3000 ? '(5G)' : ''}}
+            <icon type="success" size="20" wx:if="{{item.active}}"/>
           </view>
         </view>
       </view>
-    </view>
+    </view> -->
+  <mp-cells title="点击下面列表中你想要分享的 WiFi" footer="" wx:if="{{wifiList.length > 0}}">
+    <!-- <mp-cell value="标题文字" footer="说明文字">
+      <image slot="icon" src="{{icon}}" style="margin-right: 16px;vertical-align: middle;width:20px; height: 20px;"></image>
+    </mp-cell> -->
+    <mp-cell hover value="{{item.SSID}}" secondary="副标题"
+      footer="{{item.active ? '已连接' : ''}}"
+      bindtap="connectWiFi" data-item='{{item}}'
+      wx:for="{{wifiList}}" wx:key="index"
+    >
+      <image slot="title" src="{{icon}}" style="margin-right: 16px;vertical-align: middle;width:20px; height: 20px;"></image>
+    </mp-cell>
+  </mp-cells>
 </view>
 <!-- <view class="modal-dialog" wx:if="{{showModal===true}}">
   <view class="modal-title">{{ssid}}</view>
@@ -46,7 +54,7 @@
   show="{{showModal}}"
   maskClosable="{{false}}" 
   title="分享WiFi" 
-  subTitle="WiFi密码会被加密到二维码，不直接展示给别人"
+  subTitle="你的WiFi密码会加密成二维码，不会接展示给别人"
   buttons="{{buttons}}"
 >
 <!-- desc="输入选择WiFi的密码" -->
@@ -91,7 +99,7 @@
     <scroll-view scroll-y="true" style="height: 500rpx;"
      bindscrolltoupper="upper" bindscrolltolower="lower"
      bindscroll="scroll" class="page-scroll-view page-height"
-     show-scrollbar="false"
+     show-scrollbar="{{false}}"
     >
       <mp-form id="form" rules="{{rules}}" models="{{formData}}">
         <mp-cells>

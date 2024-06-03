@@ -2,5 +2,7 @@
 <view>
   <image src="/images/icon_wifi.png" mode="aspectFit"></image>
   <text>WiFi名称：{{ssid}}</text>
+  <text>WiFiMAC：{{bssid}}</text>
+  <text>WiFi密码：{{password}}</text>
   <button bindtap="connectWifi">点击连接</button>
 </view>

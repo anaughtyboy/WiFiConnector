@@ -5,8 +5,10 @@ Page({
    */
   data: {
     wifiList: [],
-    ssid: '',
-    wifi: '',
+    ssid: '', // 已连接wifi信息
+    bssid: '', // 已连接wifi信息
+    password: '', // 已连接wifi信息
+    wifi: '', // 选中wifi信息
     wifiQrCode: '',
     showModal: true,
     isdisabled: false,
@@ -14,71 +16,113 @@ Page({
     wiFiPassword: '',
     buttons: [
       {
+        type: 'secondary',
+        className: '',
+        text: '修改密码',
+        value: 1
+      },
+      {
         type: 'primary',
         className: '',
-        text: '生成二维码',
+        text: 'WiFi二维码',
         value: 0
       }
     ],
-    formData: { ssid: '', password: '' },
+    formData: { password: '', mask: '' }, // 更新wifi密码
     rules: [{
-      name: 'ssid',
-      rules: {required: true, message: '名称必填'
-      }},{
+      // name: 'ssid',
+      // rules: {required: true, message: '名称必填'
+      // }},{
       name: 'password',
       rules: {
         validator: function(rule, value, param, modeels) {
-          if (!value || value.length < 8) {
-              return '请输入Wifi密码，且长度至少8位'
+        if (!value || value.length < 8) {
+          return '请输入真实的Wifi密码'
+        }
+      }}}, {
+        name: 'mask',
+        rules: {
+          validator: function(rule, value, param, modeels) {
+          if (!value || value.length === 8) {
+            return '请输入8位数字Wifi掩码'
           }
-      }}
+        }
+      }
     }]
   },
+  scanWiFiList: function() {
+    wx.startWifi({
+      success: () => {
+        // console.log(res);
+        wx.getWifiList({
+          success: () => {
+            // console.log(res);
+            wx.onGetWifiList((resWifi) => {
+              // console.log(res.wifiList);
+              wx.getConnectedWifi({
+                success: ({wifi}) => {
+                  // console.log(wifi)
+                  for (var i = 0; i < resWifi.wifiList.length; i++) {
+                    if (resWifi.wifiList[i].SSID != '' &&
+                        (resWifi.wifiList[i].signalStrength > 1 ? 
+                          resWifi.wifiList[i].signalStrength : 
+                          resWifi.wifiList[i].signalStrength * 100) > 80)
+                    {
+                      if (wifi.BSSID === resWifi.wifiList[i].BSSID) {
+                        this.data.wifiList.push({
+                          ...resWifi.wifiList[i],
+                          active: true
+                        });
+                      }
+                      this.setData({
+                        wifiList: this.data.wifiList.sort((a, b) => a.signalStrength - b.signalStrength)
+                      });
+                    }
+                  }
+                },
+                complete: () => {
+                  for (var i = 0; i < resWifi.wifiList.length; i++) {
+                    if (resWifi.wifiList[i].SSID != '' &&
+                        (resWifi.wifiList[i].signalStrength > 1 ? 
+                          resWifi.wifiList[i].signalStrength : 
+                          resWifi.wifiList[i].signalStrength * 100) > 80
+                     ) {
+                      this.data.wifiList.push(resWifi.wifiList[i]);
+                      this.setData({
+                        wifiList: this.data.wifiList.sort((a, b) => a.signalStrength - b.signalStrength)
+                      });
+                    }
+                  }
+                }
+              })
+            })
+          },
+          fail: (err) => {
+            wx.showToast({
+              title: err.errMsg,
+              icon: 'none',
+              duration: 2000
+            })
+          }
+        })
+      },
+      fail: (res) => {
+        wx.showToast({
+          title: res.errMsg,
+          icon: 'none',
+          duration: 2000
+        })
+      }
+    })
+  },
   unlockMore: function() {
-    // this.setData({
-    //   showModal: true
-    // })
-    // return
-    //console.log(this.data.wifiList);
     if (this.data.wifiList != []) {
       this.data.wifiList = [];
       this.setData({
         wifiList: this.data.wifiList
       });
-      //console.log(this.data.wifiList);
     }
-    wx.startWifi({
-      success: (res) => {
-        //console.log(res);
-        wx.getWifiList({
-          success: (res) => {
-            //console.log(res);
-            wx.onGetWifiList((res) => {
-              console.log(res.wifiList);
-              for (var i = 0; i < res.wifiList.length; i++) {
-                if (res.wifiList[i].SSID != '') {
-                  this.data.wifiList.push(res.wifiList[i]);
-                  this.setData({
-                    wifiList: this.data.wifiList
-                  });
-                }
-              }
-              console.log(this.data.wifiList);
-            })
-          },
-          fail: (res) => {
-            console.log(res);
-            if (res.errCode === 12005) {
-              wx.showToast({
-                title: '请先打开WiFi开关',
-                icon: 'none',
-                duration: 2000
-              })
-            }
-          }
-        })
-      }
-    })
+    this.scanWiFiList()
   },
   connectWiFi: function(e) {
     //console.log(e);
@@ -245,7 +289,11 @@ Page({
         // wx.showToast({
         //   title: '校验通过'
         // })
-        this.generateQrcode()
+        // this.generateQrcode()
+        // 跳转至连接页面
+        wx.redirectTo({
+          url: `/pages/connect/connect?ssid=${this.data.formData.ssid}&bssid=${this.data.wifi.BSSID}&password=${this.data.formData.password}`,
+        })
       }
     })
   },
@@ -255,7 +303,7 @@ Page({
     // this.setData({ showModal: this.data.showModal })
     wx.request({
       // url: 'https://wifi.cou8123.cn/api/wxapp/public/getWXACode',
-      url: 'http://192.168.10.126:5000/weixin/create_wxaqrcode',
+      url: 'http://192.168.10.126:5000/weixin/miniapp/qrcode',
       data: {
         ssid: this.data.formData.ssid,
         password: this.data.formData.password,
@@ -316,67 +364,36 @@ Page({
     //   wifiList: this.data.wifiList
     // });
     // return
-    wx.startWifi({
-      success: (res) => {
-        console.log(res);
-        wx.getWifiList({
-          success: (res) => {
-            console.log(res);
-            wx.onGetWifiList((res) => {
-              console.log(res.wifiList);
-              for (var i = 0; i < res.wifiList.length; i++) {
-                if (res.wifiList[i].SSID != '') {
-                  this.data.wifiList.push(res.wifiList[i]);
-                  this.setData({
-                    wifiList: this.data.wifiList
-                  });
-                }
-              }
-            })
-          },
-          fail: (res) => {
-            console.log(res);
-          }
-        })
-      },
-      fail: (res) => {
-        console.log(res);
-      }
-    })
+    this.scanWiFiList()
   },
 
   /**
    * 生命周期函数--监听页面隐藏
    */
   onHide: function() {
-
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function() {
-
   },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh: function() {
-
   },
 
   /**
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function() {
-
   },
 
   /**
    * 用户点击右上角分享
    */
   onShareAppMessage: function() {
-
   }
 })

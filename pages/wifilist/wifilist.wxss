@@ -1,7 +1,7 @@
 /* @import '../common.wxss'; */
-/* .half-screen-dialog-wifi-qrcode {
-  height: 75%;
-} */
+.half-screen-dialog-wifi-qrcode {
+  height: 100%;
+}
 .placeholder {
   margin: 5px;
   padding: 0 10px;
