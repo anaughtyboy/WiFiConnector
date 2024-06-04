@@ -4,11 +4,9 @@
     <mp-icon type="field" icon="share" color="#409eff" size="{{15}}">
     </mp-icon>
   </view> -->
-  <view class='choose-wifi' bindtap="unlockMore">
+  <!-- <view class='choose-wifi' bindtap="unlockMore">
     点击刷新 WiFi 列表
-    <!-- <mp-icon type="field" icon="refresh" color="#409eff" size="{{15}}">
-    </mp-icon> -->
-  </view>
+  </view> -->
     <!-- <view class="page__bd page__bd_spacing">
       <view class="weui-flex" wx:for="{{wifiList}}" wx:key="index">
         <view class="weui-flex__item">
@@ -19,7 +17,7 @@
         </view>
       </view>
     </view> -->
-  <mp-cells title="点击下面列表中你想要分享的 WiFi" footer="" wx:if="{{wifiList.length > 0}}">
+  <mp-cells title="点击 WiFi 名称开始分享它，【下拉可刷新 WiFi 列表】" footer="">
     <!-- <mp-cell value="标题文字" footer="说明文字">
       <image slot="icon" src="{{icon}}" style="margin-right: 16px;vertical-align: middle;width:20px; height: 20px;"></image>
     </mp-cell> -->
@@ -53,8 +51,8 @@
   bindbuttontap="submitForm"
   show="{{showModal}}"
   maskClosable="{{false}}" 
-  title="分享WiFi" 
-  subTitle="你的WiFi密码会加密成二维码，不会接展示给别人"
+  title="{{'分享WiFi' + ssid}}" 
+  subTitle="WiFi密码会被加密，掩码才会展示给别人"
   buttons="{{buttons}}"
 >
 <!-- desc="输入选择WiFi的密码" -->
@@ -96,28 +94,33 @@
   <view class="page" slot="desc">
     <!-- <mp-navigation-bar title="form"></mp-navigation-bar> -->
     <!-- <scroll-view type="list" scroll-y class="page-scroll-view page-height"> -->
-    <scroll-view scroll-y="true" style="height: 500rpx;"
+    <scroll-view scroll-y="true" style="height: auto;"
      bindscrolltoupper="upper" bindscrolltolower="lower"
      bindscroll="scroll" class="page-scroll-view page-height"
      show-scrollbar="{{false}}"
     >
-      <mp-form id="form" rules="{{rules}}" models="{{formData}}">
+      <mp-form id="form" rules="{{rules}}" models="{{formData}}" wx:if="{{!wifiQrCode}}">
         <mp-cells>
-          <label>
+          <!-- <label>
             <mp-cell prop="ssid" title="名称" ext-class="">
               <input bindinput="formInputChange" data-field="ssid" value="{{formData.ssid}}" class="weui-input" placeholder="请输入名称"/>
             </mp-cell>
-          </label>
+          </label> -->
           <label>
             <mp-cell prop="password" title="密码" ext-class="">
-              <input bindinput="formInputChange" data-field="password" class="weui-input" placeholder="请输入密码" password="true" />
+              <input bindinput="formInputChange" data-field="password" class="weui-input" placeholder="请输入真实WiFi密码" password="true" />
+            </mp-cell>
+          </label>
+          <label>
+            <mp-cell prop="mask" title="掩码" ext-class="">
+              <input bindinput="formInputChange" data-field="mask" class="weui-input" placeholder="请输入掩码，8位数字" type="number"/>
             </mp-cell>
           </label>
         </mp-cells>
       </mp-form>
       <!-- <image src="{{miniQrCode}}" mode="aspectFit" wx:if="{{miniQrCode}}"></image> -->
-      <view class='wifiCode-container'>
-        <image src='{{wifiQrCode}}' class='wifiCode' wx:if="{{wifiQrCode}}"></image>
+      <view class='wifiCode-container' wx:if="{{wifiQrCode}}">
+        <image src='{{wifiQrCode}}' class='wifiCode'></image>
       </view>
     </scroll-view>
 </view>

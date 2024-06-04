@@ -18,13 +18,13 @@ Page({
       {
         type: 'secondary',
         className: '',
-        text: '修改密码',
+        text: '修改信息',
         value: 1
       },
       {
         type: 'primary',
         className: '',
-        text: 'WiFi二维码',
+        text: '展示二维码',
         value: 0
       }
     ],
@@ -37,14 +37,14 @@ Page({
       rules: {
         validator: function(rule, value, param, modeels) {
         if (!value || value.length < 8) {
-          return '请输入真实的Wifi密码'
+          return '请输入真实的密码，长度要大于8位'
         }
       }}}, {
         name: 'mask',
         rules: {
           validator: function(rule, value, param, modeels) {
           if (!value || value.length === 8) {
-            return '请输入8位数字Wifi掩码'
+            return '请输入8位数字掩码'
           }
         }
       }
@@ -289,11 +289,11 @@ Page({
         // wx.showToast({
         //   title: '校验通过'
         // })
-        // this.generateQrcode()
+        this.generateQrcode()
         // 跳转至连接页面
-        wx.redirectTo({
-          url: `/pages/connect/connect?ssid=${this.data.formData.ssid}&bssid=${this.data.wifi.BSSID}&password=${this.data.formData.password}`,
-        })
+        // wx.redirectTo({
+        //   url: `/pages/connect/connect?ssid=${this.data.formData.ssid}&bssid=${this.data.wifi.BSSID}&password=${this.data.formData.password}`,
+        // })
       }
     })
   },
@@ -301,39 +301,56 @@ Page({
     //请求服务器生成二维码
     // this.data.showModal = false
     // this.setData({ showModal: this.data.showModal })
-    wx.request({
-      // url: 'https://wifi.cou8123.cn/api/wxapp/public/getWXACode',
-      url: 'http://192.168.10.126:5000/weixin/miniapp/qrcode',
-      data: {
-        ssid: this.data.formData.ssid,
-        password: this.data.formData.password,
-        bssid: this.data.wifi.BSSID, //可选的
-        user_id: wx.getStorageSync('openid'), //openid
-      },
-      method: 'POST',
-      success: (res) => {
-      this.data.wifiQrCode = res.data.src;
-      this.setData({
-        wifiQrCode: this.data.wifiQrCode
-      });
-        // console.log(res.data);
-        // var WiFidata = res.data;
-        // wx.navigateTo({
-        //   // url: '../WiFiCode/WiFiCode?WiFidata=' + JSON.stringify(WiFidata) + '&' + 'wifiName=' + this.data.wifiName + '&wifiPw=' + this.data.wifiPw
-        //   url: '../WiFiCode/WiFiCode?wifiName=' + this.data.wifiName + '&wifiPw=' + this.data.wifiPw,
-        //   success: () => {
-        //     this.data.wifiName = '';
-        //     this.setData({
-        //       wifiName: this.data.wifiName
-        //     });
-        //     this.data.wifiPw = '';
-        //     this.setData({
-        //       wifiPw: this.data.wifiPw
-        //     });
-        //   }
-        // })
-      }
+    wx.showLoading({
+      title: '二维码获取中...',
     })
+    setTimeout(() => {
+      wx.request({
+        // url: 'https://wifi.cou8123.cn/api/wxapp/public/getWXACode',
+        url: 'http://192.168.31.30:5050/weixin/miniapp/qrcode',
+        data: {
+          ssid: this.data.formData.ssid,
+          password: this.data.formData.password,
+          mask: this.data.formData.mask,
+          bssid: this.data.wifi.BSSID, //可选的
+          wechat_openid: wx.getStorageSync('openid'), //openid
+        },
+        method: 'POST',
+        success: (res) => {
+          if (![200, 202].includes(res.data.code)) {
+            wx.showToast({
+              title: res.data.message,
+              icon: 'none',
+              duration: 2000
+            })
+          } else {
+            this.data.wifiQrCode = res.data.src;
+            this.setData({
+              wifiQrCode: this.data.wifiQrCode
+            });
+          }
+          // console.log(res.data);
+          // var WiFidata = res.data;
+          // wx.navigateTo({
+          //   // url: '../WiFiCode/WiFiCode?WiFidata=' + JSON.stringify(WiFidata) + '&' + 'wifiName=' + this.data.wifiName + '&wifiPw=' + this.data.wifiPw
+          //   url: '../WiFiCode/WiFiCode?wifiName=' + this.data.wifiName + '&wifiPw=' + this.data.wifiPw,
+          //   success: () => {
+          //     this.data.wifiName = '';
+          //     this.setData({
+          //       wifiName: this.data.wifiName
+          //     });
+          //     this.data.wifiPw = '';
+          //     this.setData({
+          //       wifiPw: this.data.wifiPw
+          //     });
+          //   }
+          // })
+        },
+        complete: () => {
+          wx.hideLoading()
+        }
+      })
+    }, 1000)
   },
   /**
    * 生命周期函数--监听页面加载
