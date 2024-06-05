@@ -2,6 +2,7 @@
 App({
   globalData: {
     wifiList: [],
+    backendApi: 'http://192.168.0.2:5050'
   },
   onLaunch: function() {
     // wx.getUserInfo({
@@ -33,7 +34,7 @@ App({
         success(res) {
           if (res.code) {
             wx.request({
-              url: 'http://127.0.0.1:5000/weixin/login',
+              url: 'http://127.0.0.1:5050/weixin/login',
               data: {
                 code: res.code
               },

@@ -117,7 +117,7 @@ Page({
       },
       complete: () => {
         wx.request({
-          url: 'http://192.168.10.126:5050/api/wifis',
+          url: 'http://192.168.0.2:5050/api/wifis',
           method: 'GET',
           success: (res) => {
             if (res.data.code) {
@@ -350,7 +350,7 @@ Page({
     setTimeout(() => {
       wx.request({
         // url: 'https://wifi.cou8123.cn/api/wxapp/public/getWXACode',
-        url: 'http://192.168.31.30:5050/weixin/miniapp/qrcode',
+        url: 'http://127.0.0.1:5050/weixin/miniapp/qrcode',
         data: {
           ssid: this.data.formData.ssid,
           password: this.data.formData.password,
