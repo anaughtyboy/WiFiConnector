@@ -17,12 +17,24 @@
         </view>
       </view>
     </view> -->
-  <mp-cells title="点击 WiFi 名称开始分享它，【下拉可刷新 WiFi 列表】" footer="">
+  <mp-cells title="[已保存WiFi] 点击名称开始分享它吧~" footer="">
+    <!-- <mp-cell value="标题文字" footer="说明文字">
+      <image slot="icon" src="{{icon}}" style="margin-right: 16px;vertical-align: middle;width:20px; height: 20px;"></image>
+    </mp-cell> -->
+    <mp-cell hover value="{{item.ssid}}" secondary="副标题"
+      footer=""
+      bindtap="connectWiFi" data-item='{{item}}'
+      wx:for="{{savedWifiList}}" wx:key="index"
+    >
+      <image slot="title" src="{{icon}}" style="margin-right: 16px;vertical-align: middle;width:20px; height: 20px;"></image>
+    </mp-cell>
+  </mp-cells>
+  <mp-cells title="[未保存WiFi] 点击名称开始分享它吧~" footer="">
     <!-- <mp-cell value="标题文字" footer="说明文字">
       <image slot="icon" src="{{icon}}" style="margin-right: 16px;vertical-align: middle;width:20px; height: 20px;"></image>
     </mp-cell> -->
     <mp-cell hover value="{{item.SSID}}" secondary="副标题"
-      footer="{{item.active ? '已连接' : ''}}"
+      footer="{{item.active ? '连接中' : ''}}"
       bindtap="connectWiFi" data-item='{{item}}'
       wx:for="{{wifiList}}" wx:key="index"
     >
@@ -108,12 +120,12 @@
           </label> -->
           <label>
             <mp-cell prop="password" title="密码" ext-class="">
-              <input bindinput="formInputChange" data-field="password" class="weui-input" placeholder="请输入真实WiFi密码" password="true" />
+              <input bindinput="formInputChange" data-field="password" class="weui-input" placeholder="密码大于8位" password="true" />
             </mp-cell>
           </label>
           <label>
             <mp-cell prop="mask" title="掩码" ext-class="">
-              <input bindinput="formInputChange" data-field="mask" class="weui-input" placeholder="请输入掩码，8位数字" type="number"/>
+              <input bindinput="formInputChange" data-field="mask" class="weui-input" placeholder="6位数字" type="number"/>
             </mp-cell>
           </label>
         </mp-cells>

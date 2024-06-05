@@ -5,6 +5,7 @@ Page({
    */
   data: {
     wifiList: [],
+    savedWifiList: [],
     ssid: '', // 已连接wifi信息
     bssid: '', // 已连接wifi信息
     password: '', // 已连接wifi信息
@@ -37,14 +38,15 @@ Page({
       rules: {
         validator: function(rule, value, param, modeels) {
         if (!value || value.length < 8) {
-          return '请输入真实的密码，长度要大于8位'
+          return '真实的密码长度要大于8位'
         }
       }}}, {
         name: 'mask',
         rules: {
+          require: false,
           validator: function(rule, value, param, modeels) {
-          if (!value || value.length === 8) {
-            return '请输入8位数字掩码'
+          if (value && value.length !== 6) {
+            return '请输入6位数字掩码'
           }
         }
       }
@@ -111,6 +113,47 @@ Page({
           title: res.errMsg,
           icon: 'none',
           duration: 2000
+        })
+      },
+      complete: () => {
+        wx.request({
+          url: 'http://192.168.10.126:5050/api/wifis',
+          method: 'GET',
+          success: (res) => {
+            if (res.data.code) {
+              wx.showToast({
+                title: res.data.message,
+                icon: 'none',
+                duration: 2000
+              })
+            } else {
+              // for (var i = 0; i < res.data.data.length; i++) {
+              //   this.data.savedWifiList.push({
+              //     ...res.data.data[i]
+              //   });
+              //   this.setData({
+              //     savedWifiList: this.data.savedWifiList
+              //   });
+              // }
+              this.data.savedWifiList = res.data.data
+              this.setData({
+                savedWifiList: this.data.savedWifiList
+              });
+              this.data.wifiList = this.data.wifiList.filter(
+                (i) => !this.data.savedWifiList.map((s) => s.bssid).includes(i.BSSID)
+              )
+              this.setData({
+                wifiList: this.data.wifiList
+              })
+            }
+          },
+          fail: (err) => {
+            wx.showToast({
+              title: err.message,
+              icon: 'none',
+              duration: 2000
+            })
+          }
         })
       }
     })

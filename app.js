@@ -32,11 +32,7 @@ App({
       wx.login({
         success(res) {
           if (res.code) {
-            // console.log(res);
-            // console.log(res.code);
-            // console.log(typeof(res.code));
             wx.request({
-              // url: 'https://knock2.sdexms.com/api/weixin/login',
               url: 'http://127.0.0.1:5000/weixin/login',
               data: {
                 code: res.code
